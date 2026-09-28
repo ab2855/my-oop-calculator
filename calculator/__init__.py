@@ -1,2 +1,3 @@
-from calculator.calculations import Add
-__all__ = ["Add"]
+from calculator.calculations import Add, Calculation, Subtract
+
+__all__ = ["Calculation", "Add", "Subtract"]
