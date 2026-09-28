@@ -67,3 +67,67 @@ def test_repl_blank_input(monkeypatch, capsys):
     Calculator().run()
     out, _ = capsys.readouterr()
     assert "Goodbye!" in out
+
+
+def test_repl_eof_interrupt(monkeypatch, capsys):
+    def mock_input(_):
+        raise EOFError
+
+    monkeypatch.setattr("builtins.input", mock_input)
+    Calculator().run()
+    out, _ = capsys.readouterr()
+    assert "Goodbye!" in out
+
+
+def test_repl_keyboard_interrupt(monkeypatch, capsys):
+    def mock_input(_):
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr("builtins.input", mock_input)
+    Calculator().run()
+    out, _ = capsys.readouterr()
+    assert "Goodbye!" in out
+
+
+def test_repl_invalid_numbers(monkeypatch, capsys):
+    inputs = iter(["add", "abc", "exit"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    calc = Calculator()
+    calc.run()
+    out, _ = capsys.readouterr()
+    assert "Invalid input: Please enter numeric values." in out
+    assert calc.history.count() == 0
+
+
+def test_repl_non_finite_numbers(monkeypatch, capsys):
+    inputs = iter(["add", "inf", "5", "exit"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    calc = Calculator()
+    calc.run()
+    out, _ = capsys.readouterr()
+    assert "Invalid input: Please enter numeric values." in out
+    assert calc.history.count() == 0
+
+
+def test_repl_float_result(monkeypatch, capsys):
+    inputs = iter(["add", "2.5", "3.2", "exit"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    calc = Calculator()
+    calc.run()
+    out, _ = capsys.readouterr()
+    assert "Result: 5.7" in out
+
+
+def test_repl_remove_invalid_entries(monkeypatch, capsys):
+    inputs = iter(["remove", "not_a_number", "remove", "99", "exit"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    calc = Calculator()
+    calc.run()
+    out, _ = capsys.readouterr()
+    assert "Invalid history entry." in out
+
+
+def test_main_execution(monkeypatch):
+    import runpy
+    monkeypatch.setattr("builtins.input", lambda _: "exit")
+    runpy.run_module("calculator.__main__", run_name="__main__")

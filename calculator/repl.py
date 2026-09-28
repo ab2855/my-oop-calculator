@@ -1,3 +1,4 @@
+import math
 from calculator.calculations import Add, Subtract
 from calculator.history import History
 
@@ -43,6 +44,8 @@ class Calculator:
         try:
             a_val = float(input("First number: "))
             b_val = float(input("Second number: "))
+            if not math.isfinite(a_val) or not math.isfinite(b_val):
+                raise ValueError("Non-finite numbers are not allowed.")
         except ValueError:
             print("Invalid input: Please enter numeric values.")
             return
@@ -53,7 +56,6 @@ class Calculator:
             calc = Subtract(a_val, b_val)
 
         result = calc.execute()
-        # Format integer floats cleanly (e.g. 15.0 -> 15)
         if result.is_integer():
             result_str = str(int(result))
         else:
